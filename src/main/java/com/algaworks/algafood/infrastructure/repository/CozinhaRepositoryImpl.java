@@ -23,6 +23,14 @@ public class CozinhaRepositoryImpl implements CozinhaRepository{
 		return manager.createQuery("from Cozinha", Cozinha.class)
 				.getResultList();
 	}
+	
+	@Override
+	public List<Cozinha> consultarPorNome(String nome) {
+		return manager.createQuery("from Cozinha where nome like :nome", Cozinha.class)
+				.setParameter("nome","%" + nome + "%")
+				.getResultList();
+	}
+
 
 	@Override
 	public Cozinha buscar(Long id) {
@@ -42,10 +50,11 @@ public class CozinhaRepositoryImpl implements CozinhaRepository{
 		
 		if(cozinha == null) {
 			
-			throw new EmptyResultDataAccessException(1); // informa no contrutor da classe o tamnho que é espera, aqui no caso esperamos que a lista tenha no mnimo 1 elemento
+			throw new EmptyResultDataAccessException(1); // informa no contrutor da classe o tamanho que é espera, aqui no caso esperamos que a lista tenha no mnimo 1 elemento
 			
 		}
 		manager.remove(cozinha);		
 	}
+
 
 }
