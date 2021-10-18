@@ -17,13 +17,13 @@ public class CadastroEstadoService {
 	EstadoRepository estadoRepository;
 	
 	public Estado salvar (Estado estado) {
-		return estadoRepository.Salvar(estado);
+		return estadoRepository.save(estado);
 	}
 	
 	public void excluir(Long estadoId) {
 		
 		try {
-			estadoRepository.remover(estadoId);
+			estadoRepository.deleteById(estadoId);
 		} catch (EmptyResultDataAccessException e) {	
 			throw new EntidadeNaoEncontradaException(
 					String.format("Não foi encontrada nenhuma entidade com o código %d\", pois está em uso", estadoId));

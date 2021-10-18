@@ -1,6 +1,7 @@
 package com.algaworks.algafood.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,22 +41,24 @@ public class CozinhaController {
 	@GetMapping
 	@ResponseStatus(code = HttpStatus.OK)
 	public List<Cozinha> listar(){
-		return cozinhaRepository.listar();
+		return cozinhaRepository.findAll();
 	}
 	
 	@GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
 	public CozinhasXmlWrapper listarXML(){
-		return new CozinhasXmlWrapper(cozinhaRepository.listar());
+		return new CozinhasXmlWrapper(cozinhaRepository.findAll());
 	}
 	
 	
 	@GetMapping("/{cozinhaId}")
 	public ResponseEntity<Cozinha> buscarPorId(@PathVariable Long cozinhaId) {
-			
-		Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
-			
-		if (cozinha != null) {
-				return ResponseEntity.ok(cozinha);
+		//Optional sempre retorna algo que pode ser uma cozinha ou não, dessa forma evita NullPointerException
+		Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
+		
+		//não verifica mais se a cozinha é nula mas sim se tem uma cozinha presente
+		if (cozinha.isPresent()) {
+				//sempre que for passar o objeto que está em Optional deve-se usar o método get() de Optional, aí sim ele pega esse objeto que condiz com o retorno do responseEntity 
+				return ResponseEntity.ok(cozinha.get());
 		}
 		
 		return ResponseEntity.notFound().build();
@@ -71,13 +74,13 @@ public class CozinhaController {
 	
 	@PutMapping("/{cozinhaId}" )
 	public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha){
-		Cozinha cozinhaAtual = cozinhaRepository.buscar(cozinhaId);
+		Optional<Cozinha> cozinhaAtual = cozinhaRepository.findById(cozinhaId);
 		
-		if(cozinhaAtual != null){
+		if(cozinhaAtual.isPresent()){
 
-			BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
-			cozinhaAtual = cadastroCozinha.salvar(cozinhaAtual);
-			return ResponseEntity.ok(cozinhaAtual);
+			BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");
+			Cozinha cozinhaSalva = cadastroCozinha.salvar(cozinhaAtual.get());
+			return ResponseEntity.ok(cozinhaSalva);
 		}
 	
 		return ResponseEntity.notFound().build();

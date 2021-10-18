@@ -1,5 +1,7 @@
 package com.algaworks.algafood.domain.service;
 
+//import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,19 +21,35 @@ public class CadastroRestauranteService {
 	@Autowired
 	private CozinhaRepository cozinhaRepository;
 	
+//Funciona dessa forma
+	
+//	public Restaurante salvar(@RequestBody Restaurante restaurante){
+//		Long cozinhaId = restaurante.getCozinha().getId();
+//		Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
+//		
+//		if(cozinha.isEmpty()) {
+//			throw new EntidadeNaoEncontradaException(
+//					String.format("Não foi laocalizada nenhuma cozinha com esse ID %d",cozinhaId));
+//		}
+//		
+//		restaurante.setCozinha(cozinha.get());
+//
+//		return restauranteRepository.Salvar(restaurante);
+//	}
+	
+
+
+//Mesmo método simplificado com Lamda
 	
 	public Restaurante salvar(@RequestBody Restaurante restaurante){
 		Long cozinhaId = restaurante.getCozinha().getId();
-		Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
-		
-		if(cozinha == null) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Não foi laocalizada nenhuma cozinha com esse ID %d",cozinhaId));
-		}
+		Cozinha cozinha = cozinhaRepository.findById(cozinhaId)
+				.orElseThrow(()-> new EntidadeNaoEncontradaException(
+						String.format("Não foi laocalizada nenhuma cozinha com esse ID %d",cozinhaId)));
 		
 		restaurante.setCozinha(cozinha);
 
-		return restauranteRepository.Salvar(restaurante);
+		return restauranteRepository.save(restaurante);
 	}
 		
 }

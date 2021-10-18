@@ -1,8 +1,8 @@
 package com.algaworks.algafood.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,22 +29,22 @@ public class CidadeController {
 	
 	@GetMapping
 	public List<Cidade> listar(){
-		return cidadeRepository.listar();
+		return cidadeRepository.findAll();
 	}
 	
 	@GetMapping("/cidades/{cidadeId}")
 	public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId) {
-		Cidade cidade = cidadeRepository.buscar(cidadeId);
+		Optional<Cidade> cidade = cidadeRepository.findById(cidadeId);
 		
 		if(cidade != null) {
-			return ResponseEntity.ok(cidade);
+			return ResponseEntity.ok(cidade.get());
 		}
 		
 		return ResponseEntity.notFound().build();
 	}
 	
 	
-	//Método está dnado NullPointerException
+	//Método está danddo NullPointerException
 	@PostMapping("/cidades")
 	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade){
 			
@@ -59,17 +59,12 @@ public class CidadeController {
 	//método está dando Bad Request direto
 	@PutMapping("/cidades/{cidadeId}")
 	public ResponseEntity<Cidade> alterar(@PathVariable Long cidadeId, @RequestBody Cidade cidade){
-		Cidade cidadeAtual = cidadeRepository.buscar(cidadeId);
+		Cidade cidadeAtual = cidadeRepository.findById(cidadeId).orElse(null);
 		
-		if(cidade != null) {
-			BeanUtils.copyProperties(cidade, cidadeAtual,"id");
-			return ResponseEntity.ok(cidadeAtual);
-		}
-		
-		return ResponseEntity.notFound().build();
+		return ResponseEntity.ok(cidadeAtual);
 	}
 	
-	/* TODO
+	/** TODO
 		@DeleteMaping("/{cidadeID}")
 	*/
 	
