@@ -2,13 +2,14 @@ package com.algaworks.algafood.infrastructure.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
@@ -67,10 +68,17 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries{
 		CriteriaBuilder builder = manager.getCriteriaBuilder(); 
 		CriteriaQuery<Restaurante> criteria = builder.createQuery(Restaurante.class); //nesse trecho informa a classe que você usará pra fazer a query
 		
-		criteria.from(Restaurante.class); //Equivalente ao JPQL from Restaurante
+		Root<Restaurante> root = criteria.from(Restaurante.class); //Equivalente ao JPQL from Restaurante
+		
+		//o import é do pacote javax.persistence.criteria
+		Predicate nomePredicate = builder.like(root.get("nome"), "%" +  nome + "%"); // o root pega o atributo usado da raiz do from
+		Predicate taxaInicialPredicate = builder.greaterThanOrEqualTo(root.get("taxaFrete"), taxaInicial);
+		Predicate taxaFinalPredicate = builder.lessThan(root.get("taxaFrete"), taxaFinal);
 		
 		
-
+		//Depois de fazer um predicate para cada atributo basta passa-los no where sepados por vírgula, que funcionará como se estivesse fazendo o and entre as clásulas
+		criteria.where(nomePredicate, taxaInicialPredicate, taxaFinalPredicate);
+		
 		//Usar uma sobrecarga do createQuery para criteria
 		TypedQuery<Restaurante> query = manager.createQuery(criteria);
 		return query.getResultList();
